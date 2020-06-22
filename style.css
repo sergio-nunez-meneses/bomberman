@@ -1,0 +1,15 @@
+html {
+  height: 100%;
+}
+body {
+  min-height: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+.container {
+  width: 760px;
+  height: 760px;
+  margin: auto;
+  border: 1rem solid grey ;
+}

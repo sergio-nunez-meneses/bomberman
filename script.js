@@ -50,7 +50,7 @@ class Wall extends Block {
     this.drawBlock();
     this.destructible = destructible;
   }
-  destructible = function() {
+  isDestructible = function() {
     return this.destructible;
   }
 }
@@ -68,11 +68,10 @@ class Player extends Block {
     this.activeBombs = 0;
   }
   dropDaBomb = function() {
-    if (this.maxBombs <= this.activeBombs) return;
     let that = this;
-    bombs.push(new Bomb(this.x, this.y, function() { that.activeBombs--; console.log("bomb dropped callback"); }));
+    // walls[this.x][this.y] = new Bomb(this.x, this.y, function() { that.activeBombs--; });
+    bombs.push(walls[this.x][this.y] = new Bomb(this.x, this.y, function() { that.activeBombs--; }));
     this.activeBombs++;
-    // bombs.push(new Bomb(this.x, this.y));
   }
   keyPressed = function(event) {
 
@@ -144,41 +143,53 @@ class Bomb extends Block {
     this.drawBlock();
     this.delayedBoom = delayedBoom;
     let that = this;
-    setTimeout(function() { that.triggerBomb(); console.log("trigger BOOM"); }, 3000);
+    setTimeout(function() { console.log("BOOM!"); that.triggerBomb(); }, 3000);
   }
   triggerBomb = function() {
-    // trigger explosion new class triggerExplosion
-    // check explosion' position
+
     for (let i = 1; i <= 1; i++) { // left
       let bx = this.x - i,
       by = this.y;
-      if (this.checkBoom(bx, by)) console.log("left: " + bx, by); break;
+      if (this.checkBoom(bx, by)) console.log("left: ", bx, by); break;
     }
     for (let i = 1; i <= 1; i++) { // right
       let bx = this.x + i,
       by = this.y;
-      if (this.checkBoom(bx, by)) console.log("right: " + bx, by); break;
+      if (this.checkBoom(bx, by)) console.log("right: ", bx, by); break;
     }
     for (let i = 1; i <= 1; i++) { // up
       let bx = this.x,
       by = this.y - i;
-      if (this.checkBoom(bx, by)) console.log("up: " + bx, by); break;
+      if (this.checkBoom(bx, by)) console.log("up: ", bx, by); break;
     }
     for (let i = 1; i <= 1; i++) { // down
       let bx = this.x,
       by = this.y + i;
-      if (this.checkBoom(bx, by)) console.log("down: " + bx, by); break;
+      if (this.checkBoom(bx, by)) console.log("down: ", bx, by); break;
     }
+
+    // trigger explosion new class triggerExplosion
+    // check explosion' position
     bombs.splice(bombs.indexOf(this), 1);
     this.delayedBoom();
     clearCase(this.x, this.y);
   }
   checkBoom = function(bx, by) {
-    // check whether the bomb explodes outside the board game
+    // check if bomb explodes outside the board game
     if (bx < 0) return true;
     if (by < 0) return true;
     if (bx > size) return true;
     if (by > size) return true;
+
+    explodeWalls(bx, by);
+  }
+}
+
+function explodeWalls(x, y) {
+  for (let i = 0; i < walls.length; i++) {
+    if (x == walls[i].x && y == walls[i].y && walls[i].isDestructible()) {
+      clearCase(walls[i].x, walls[i].y);
+    }
   }
 }
 

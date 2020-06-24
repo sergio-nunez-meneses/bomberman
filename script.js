@@ -189,6 +189,7 @@ function explodeWalls(x, y) {
   for (let i = 0; i < walls.length; i++) {
     if (x == walls[i].x && y == walls[i].y && walls[i].isDestructible()) {
       clearCase(walls[i].x, walls[i].y);
+      walls.splice(walls.indexOf(walls[i]), 1);
     }
   }
 }

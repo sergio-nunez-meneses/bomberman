@@ -21,7 +21,6 @@ function clearCase(x, y) {
   for (var i = 0; i < bombs.length; i++) {
     if (x == bombs[i].x && y == bombs[i].y) {
       bombs[i].drawBlock();
-      console.log("bomb: ", bombs[i]);
       return;
     }
   }

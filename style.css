@@ -2,14 +2,20 @@ html {
   height: 100%;
 }
 body {
+  height: 100%;
   min-height: 100%;
   margin: 0;
   display: flex;
   justify-content: center;
 }
-.container {
+.canvas-container {
   width: 760px;
-  height: 760px;
+  height: auto;
   margin: auto;
-  border: 1rem solid grey ;
+  border: 1rem solid grey;
+  display: flex;
+}
+canvas {
+  width: 100%;
+  height: auto;
 }

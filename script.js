@@ -1,5 +1,5 @@
 /* variables */
-const size = 18, // number of blocks
+const size = 18, // number of blocks per row and column
   blockSize = 40,
   canvas = document.getElementById("canvas"),
   ctx = canvas.getContext('2d'),

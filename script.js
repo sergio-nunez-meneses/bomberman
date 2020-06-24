@@ -21,6 +21,7 @@ function clearCase(x, y) {
   for (var i = 0; i < bombs.length; i++) {
     if (x == bombs[i].x && y == bombs[i].y) {
       bombs[i].drawBlock();
+      console.log("bomb: ", bombs[i]);
       return;
     }
   }
@@ -66,13 +67,15 @@ class Player extends Block {
     document.onkeydown = function(event) {
       that.keyPressed(event);
     };
+    this.power = 1;
     this.maxBombs = 1;
     this.activeBombs = 0;
   }
   dropDaBomb = function() {
     if (this.maxBombs <= this.activeBombs) return;
     let that = this;
-    bombs.push(walls[this.x][this.y] = new Bomb(this.x, this.y, function() { that.activeBombs--; }));
+    // walls[this.x][this.y] =
+    bombs.push(new Bomb(this.x, this.y, this.power, function() { that.activeBombs--; }));
     this.activeBombs++;
     console.log("active bombs: ", this.activeBombs);
   }
@@ -116,15 +119,15 @@ class Player extends Block {
       if (px == walls[i].x && py == walls[i].y) return;
     }
 
+    for (let i = 0; i < bombs.length; i++) {
+      if (px == bombs[i].x && py == bombs[i].y) return;
+    }
+
     for (let i = 0; i < enemies.length; i++) {
       if (px == enemies[i].x && py == enemies[i].y) { // game over
         alert("game over!");
         clearInterval(loopEnemyMove);
       }
-    }
-
-    for (let i = 0; i < bombs.length; i++) {
-      if (px == bombs[i].x && py == bombs[i].y) return;
     }
 
     clearCase(this.x, this.y);
@@ -144,33 +147,34 @@ class Enemy extends Block {
 }
 
 class Bomb extends Block {
-  constructor(x, y, delayedBoom) {
+  constructor(x, y, power, delayedBoom) {
     super(x, y);
     this.color = "pink";
     this.drawBlock();
+    this.power = power;
     this.delayedBoom = delayedBoom;
     let that = this;
     setTimeout(function() { that.triggerBomb(); }, 3000);
   }
   triggerBomb = function() {
 
-    // check explosion' position
-    for (let i = 1; i <= 1; i++) { // left
+    // check explosion's position
+    for (let i = 1; i <= this.power; i++) { // left
       let bx = this.x - i,
       by = this.y;
       if (this.checkBoom(bx, by)) break;
     }
-    for (let i = 1; i <= 1; i++) { // right
+    for (let i = 1; i <= this.power; i++) { // right
       let bx = this.x + i,
       by = this.y;
       if (this.checkBoom(bx, by)) break;
     }
-    for (let i = 1; i <= 1; i++) { // up
+    for (let i = 1; i <= this.power; i++) { // up
       let bx = this.x,
       by = this.y - i;
       if (this.checkBoom(bx, by)) break;
     }
-    for (let i = 1; i <= 1; i++) { // down
+    for (let i = 1; i <= this.power; i++) { // down
       let bx = this.x,
       by = this.y + i;
       if (this.checkBoom(bx, by)) break;
@@ -187,8 +191,8 @@ class Bomb extends Block {
     if (bx > size) return true;
     if (by > size) return true;
 
-    new ExplodeWalls(bx, by);
     new ExplodeEnemies(bx, by);
+    new ExplodeWalls(bx, by);
   }
 }
 
@@ -212,10 +216,11 @@ class ExplodeEnemies extends Block {
       clearInterval(loopEnemyMove);
     }
     for (let i = 0; i < enemies.length; i++) {
-      if (this.x == enemies[i].x && this.y == enemies[i].x) {
+      if (this.x == enemies[i].x && this.y == enemies[i].y) {
         clearCase(enemies[i].x, enemies[i].y);
         enemies.splice(enemies.indexOf(enemies[i]), 1);
         score++;
+        console.log("score: ", score);
         if (enemies.length == 0) {
           alert("YOU WIN!");
         }

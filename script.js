@@ -239,10 +239,11 @@ class BombUp extends Block {
 class ExplodeWalls extends Block {
   constructor(x, y) {
     super(x, y);
+    let randGen = randomHundred();
     for (let i = 0; i < walls.length; i++) {
       if (x == walls[i].x && y == walls[i].y && walls[i].isDestructible()) {
-        if (randomHundred() >= 95) powerUps.push(new PowerUp(walls[i].x, walls[i].y, minMaxRandom(2, 5)));
-        else if (randomHundred() <= 8) powerUps.push(new BombUp(walls[i].x, walls[i].y));
+        if (randGen >= 90) powerUps.push(new PowerUp(walls[i].x, walls[i].y, minMaxRandom(2, 5)));
+        else if (randGen <= 10) powerUps.push(new BombUp(walls[i].x, walls[i].y));
         clearCase(walls[i].x, walls[i].y);
         walls.splice(walls.indexOf(walls[i]), 1);
       }

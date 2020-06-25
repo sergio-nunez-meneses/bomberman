@@ -14,7 +14,6 @@ let walls = [],
   enemies = [],
   bombs = [],
   powerUps = [],
-  powerUpsLevels = [],
   score = 0;
   console.log("score: ", score);
 
@@ -40,13 +39,8 @@ minMaxRandom = function(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-powerUpRandGen = function() {
-  if (minMaxRandom(0, 100) < 30) return powerUpsLevels[0];
-  else if (minMaxRandom(0, 100) < 60) return powerUpsLevels[1];
-  else if (minMaxRandom(0, 100) < 80) return powerUpsLevels[2];
-  else if (minMaxRandom(0, 100) < 90) return powerUpsLevels[3];
-  else if (minMaxRandom(0, 100) < 100) return powerUpsLevels[4];
-  else return powerUpsLevels[1];
+randomHundred = function() {
+  return Math.floor(Math.random() * 100);
 }
 
 /* classes */
@@ -86,14 +80,12 @@ class Player extends Block {
     this.power = 1;
     this.maxBombs = 1;
     this.activeBombs = 0;
-    console.log("powerup: ", this.power);
   }
   dropDaBomb = function() {
     if (this.maxBombs <= this.activeBombs) return;
     let that = this;
     bombs.push(new Bomb(this.x, this.y, this.power, function() { that.activeBombs--; }));
     this.activeBombs++;
-    console.log("active bombs: ", this.activeBombs);
   }
   keyPressed = function(event) {
 
@@ -141,12 +133,14 @@ class Player extends Block {
 
     for (var i = 0; i < powerUps.length; i++) {
       if (px == powerUps[i].x && py == powerUps[i].y) {
-        this.power++;
+        if (powerUps[i].powLevel >= 1) this.power++;
+        else this.maxBombs++;
         clearCase(powerUps[i].x, powerUps[i].y);
         powerUps.splice(powerUps.indexOf(powerUps[i]), 1);
       }
     }
-    console.log(this.power);
+    console.log("power up: ", this.power);
+    console.log("bomb up: ", this.maxBombs);
 
     for (let i = 0; i < enemies.length; i++) {
       if (px == enemies[i].x && py == enemies[i].y) { // game over
@@ -219,7 +213,9 @@ class Bomb extends Block {
     new ExplodeEnemies(bx, by);
     new ExplodeWalls(bx, by);
 
+    // decrease power up and the maximum number of bombs
     if (player.power > 1) player.power--;
+    if (player.maxBombs > 1) player.maxBombs--;
   }
 }
 
@@ -232,14 +228,21 @@ class PowerUp extends Block {
   }
 }
 
+class BombUp extends Block {
+  constructor(x, y) {
+    super(x, y);
+    this.color = "lightblue";
+    this.drawBlock();
+  }
+}
+
 class ExplodeWalls extends Block {
   constructor(x, y) {
     super(x, y);
     for (let i = 0; i < walls.length; i++) {
       if (x == walls[i].x && y == walls[i].y && walls[i].isDestructible()) {
-        if (minMaxRandom(0, 100) > 70) {
-          powerUps.push(new PowerUp(walls[i].x, walls[i].y, powerUpRandGen()));
-        }
+        if (randomHundred() >= 95) powerUps.push(new PowerUp(walls[i].x, walls[i].y, minMaxRandom(2, 5)));
+        else if (randomHundred() =< 8) powerUps.push(new BombUp(walls[i].x, walls[i].y));
         clearCase(walls[i].x, walls[i].y);
         walls.splice(walls.indexOf(walls[i]), 1);
       }

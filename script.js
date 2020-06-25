@@ -13,14 +13,22 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 let walls = [],
   enemies = [],
   bombs = [],
+  powerUps = [],
+  powerUpsLevels = [],
   score = 0;
   console.log("score: ", score);
 
 /* functions */
-function clearCase(x, y) {
+clearCase = function(x, y) {
   for (var i = 0; i < bombs.length; i++) {
     if (x == bombs[i].x && y == bombs[i].y) {
       bombs[i].drawBlock();
+      return;
+    }
+  }
+  for (var i = 0; i < powerUps.length; i++) {
+    if (x == powerUps[i].x && y == powerUps[i].y) {
+      powerUps[i].drawBlock();
       return;
     }
   }
@@ -28,8 +36,17 @@ function clearCase(x, y) {
   ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
 }
 
-function minMaxRandom(min, max) {
+minMaxRandom = function(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+powerUpRandGen = function() {
+  if (minMaxRandom(0, 100) < 30) return powerUpsLevels[0];
+  else if (minMaxRandom(0, 100) < 60) return powerUpsLevels[1];
+  else if (minMaxRandom(0, 100) < 80) return powerUpsLevels[2];
+  else if (minMaxRandom(0, 100) < 90) return powerUpsLevels[3];
+  else if (minMaxRandom(0, 100) < 100) return powerUpsLevels[4];
+  else return powerUpsLevels[1];
 }
 
 /* classes */
@@ -69,11 +86,11 @@ class Player extends Block {
     this.power = 1;
     this.maxBombs = 1;
     this.activeBombs = 0;
+    console.log("powerup: ", this.power);
   }
   dropDaBomb = function() {
     if (this.maxBombs <= this.activeBombs) return;
     let that = this;
-    // walls[this.x][this.y] =
     bombs.push(new Bomb(this.x, this.y, this.power, function() { that.activeBombs--; }));
     this.activeBombs++;
     console.log("active bombs: ", this.activeBombs);
@@ -121,6 +138,15 @@ class Player extends Block {
     for (let i = 0; i < bombs.length; i++) {
       if (px == bombs[i].x && py == bombs[i].y) return;
     }
+
+    for (var i = 0; i < powerUps.length; i++) {
+      if (px == powerUps[i].x && py == powerUps[i].y) {
+        this.power++;
+        clearCase(powerUps[i].x, powerUps[i].y);
+        powerUps.splice(powerUps.indexOf(powerUps[i]), 1);
+      }
+    }
+    console.log(this.power);
 
     for (let i = 0; i < enemies.length; i++) {
       if (px == enemies[i].x && py == enemies[i].y) { // game over
@@ -192,6 +218,17 @@ class Bomb extends Block {
 
     new ExplodeEnemies(bx, by);
     new ExplodeWalls(bx, by);
+
+    if (player.power > 1) player.power--;
+  }
+}
+
+class PowerUp extends Block {
+  constructor(x, y, powerLevel) {
+    super(x, y);
+    this.color = "blue";
+    this.drawBlock();
+    this.powLevel = powerLevel;
   }
 }
 
@@ -200,6 +237,9 @@ class ExplodeWalls extends Block {
     super(x, y);
     for (let i = 0; i < walls.length; i++) {
       if (x == walls[i].x && y == walls[i].y && walls[i].isDestructible()) {
+        if (minMaxRandom(0, 100) > 70) {
+          powerUps.push(new PowerUp(walls[i].x, walls[i].y, powerUpRandGen()));
+        }
         clearCase(walls[i].x, walls[i].y);
         walls.splice(walls.indexOf(walls[i]), 1);
       }
@@ -307,7 +347,7 @@ while (count < 5) {
 console.log("enemies: ", enemies.length);
 
 // move enemies randomly
-function enemyRandomMove() {
+enemyRandomMove = function() {
   let stop = false;
 
   for (let i = 0; i < enemies.length; i++) {
@@ -371,6 +411,16 @@ function enemyRandomMove() {
 
       for (let i = 0; i < bombs.length; i++) {
         if (ex == bombs[i].x && ey == bombs[i].y) {
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        continue;
+      }
+
+      for (let i = 0; i < powerUps.length; i++) {
+        if (ex == powerUps[i].x && ey == powerUps[i].y) {
           found = true;
           break;
         }

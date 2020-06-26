@@ -1,14 +1,14 @@
 /* variables */
-const size = 18, // number of blocks per row and column
-  blockSize = 40,
-  canvas = document.getElementById("canvas"),
-  ctx = canvas.getContext('2d'),
-  backgroundColor = "#00af00";
+const SIZE = 18, // number of blocks per row and column
+  BLOCKSIZE = 40,
+  CANVAS = document.getElementById("canvas"),
+  CTX = CANVAS.getContext('2d'),
+  BACKGROUND_COLOR = "#00af00";
 
-canvas.width = blockSize * (size + 1);
-canvas.height = blockSize * (size + 1);
-ctx.fillStyle = backgroundColor;
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+CANVAS.width = BLOCKSIZE * (SIZE + 1);
+CANVAS.height = BLOCKSIZE * (SIZE + 1);
+CTX.fillStyle = BACKGROUND_COLOR;
+CTX.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
 let walls = [],
   enemies = [],
@@ -31,8 +31,8 @@ clearCase = function(x, y) {
       return;
     }
   }
-  ctx.fillStyle = backgroundColor;
-  ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+  CTX.fillStyle = BACKGROUND_COLOR;
+  CTX.fillRect(x * BLOCKSIZE, y * BLOCKSIZE, BLOCKSIZE, BLOCKSIZE);
 }
 
 minMaxRandom = function(min, max) {
@@ -51,8 +51,8 @@ class Block {
     this.color;
   }
   drawBlock = function() {
-    ctx.fillStyle = this.color;
-    ctx.fillRect(this.x * blockSize, this.y * blockSize, blockSize, blockSize);
+    CTX.fillStyle = this.color;
+    CTX.fillRect(this.x * BLOCKSIZE, this.y * BLOCKSIZE, BLOCKSIZE, BLOCKSIZE);
   }
 }
 
@@ -120,8 +120,8 @@ class Player extends Block {
     // check border collision
     if (px < 0) return;
     if (py < 0) return;
-    if (px >= size + 1) return;
-    if (py >= size + 1) return;
+    if (px >= SIZE + 1) return;
+    if (py >= SIZE + 1) return;
 
     for (let i = 0; i < walls.length; i++) {
       if (px == walls[i].x && py == walls[i].y) return;
@@ -207,8 +207,8 @@ class Bomb extends Block {
     // check if bomb explodes outside the board game
     if (bx < 0) return true;
     if (by < 0) return true;
-    if (bx > size) return true;
-    if (by > size) return true;
+    if (bx > SIZE) return true;
+    if (by > SIZE) return true;
 
     new ExplodeEnemies(bx, by);
     new ExplodeWalls(bx, by);
@@ -219,7 +219,7 @@ class Bomb extends Block {
   }
 }
 
-class PowerUp extends Block {
+class Fire extends Block {
   constructor(x, y, powerLevel) {
     super(x, y);
     this.color = "blue";
@@ -242,7 +242,7 @@ class ExplodeWalls extends Block {
     let randGen = randomHundred();
     for (let i = 0; i < walls.length; i++) {
       if (x == walls[i].x && y == walls[i].y && walls[i].isDestructible()) {
-        if (randGen >= 90) powerUps.push(new PowerUp(walls[i].x, walls[i].y, minMaxRandom(2, 5)));
+        if (randGen >= 90) powerUps.push(new Fire(walls[i].x, walls[i].y, minMaxRandom(2, 5)));
         else if (randGen <= 10) powerUps.push(new BombUp(walls[i].x, walls[i].y));
         clearCase(walls[i].x, walls[i].y);
         walls.splice(walls.indexOf(walls[i]), 1);
@@ -273,8 +273,8 @@ class ExplodeEnemies extends Block {
 }
 
 // generate walls
-for (let wx = 0; wx < size; wx++) {
-  for (let wy = 0; wy < size; wy++) {
+for (let wx = 0; wx < SIZE; wx++) {
+  for (let wy = 0; wy < SIZE; wy++) {
     if (wx % 2 == 1 && wy % 2 == 1) {
       walls.push(new Wall(wx, wy, false));
     }
@@ -284,8 +284,8 @@ for (let wx = 0; wx < size; wx++) {
 let count = 0;
 while (count < 100) {
 
-  let rwx = minMaxRandom(0, size),
-    rwy = minMaxRandom(0, size),
+  let rwx = minMaxRandom(0, SIZE),
+    rwy = minMaxRandom(0, SIZE),
     found = false;
 
   for (let i = 0; i < walls.length; i++) {
@@ -302,15 +302,15 @@ while (count < 100) {
   if (rwx == 0 && rwy == 0) continue;
   else if (rwx == 1 && rwy == 0) continue;
   else if (rwx == 0 && rwy == 1) continue;
-  else if (rwx == size && rwy == 0) continue;
-  else if (rwx == (size - 1) && rwy == 0) continue;
-  else if (rwx == size && rwy == 1) continue;
-  else if (rwx == 0 && rwy == size) continue;
-  else if (rwx == 1 && rwy == size) continue;
-  else if (rwx == 0 && rwy == (size - 1)) continue;
-  else if (rwx == size && rwy == size) continue;
-  else if (rwx == (size - 1) && rwy == size) continue;
-  else if (rwx == size && rwy == (size - 1)) continue;
+  else if (rwx == SIZE && rwy == 0) continue;
+  else if (rwx == (SIZE - 1) && rwy == 0) continue;
+  else if (rwx == SIZE && rwy == 1) continue;
+  else if (rwx == 0 && rwy == SIZE) continue;
+  else if (rwx == 1 && rwy == SIZE) continue;
+  else if (rwx == 0 && rwy == (SIZE - 1)) continue;
+  else if (rwx == SIZE && rwy == SIZE) continue;
+  else if (rwx == (SIZE - 1) && rwy == SIZE) continue;
+  else if (rwx == SIZE && rwy == (SIZE - 1)) continue;
   walls.push(new Wall(rwx, rwy, true));
   count++;
 }
@@ -319,8 +319,8 @@ while (count < 100) {
 count = 0;
 while (count < 5) {
 
-  let rex = minMaxRandom(5, size),
-    rey = minMaxRandom(5, size),
+  let rex = minMaxRandom(5, SIZE),
+    rey = minMaxRandom(5, SIZE),
     found = false;
 
   for (let i = 0; i < walls.length; i++) {
@@ -389,8 +389,8 @@ enemyRandomMove = function() {
       // check border collision
       if (ex < 0) continue;
       if (ey < 0) continue;
-      if (ex >= size + 1) continue;
-      if (ey >= size + 1) continue;
+      if (ex >= SIZE + 1) continue;
+      if (ey >= SIZE + 1) continue;
 
       found = false;
       for (let i = 0; i < walls.length; i++) {

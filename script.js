@@ -14,6 +14,8 @@ let walls = [],
   enemies = [],
   bombs = [],
   powerUps = [],
+  gameOn = true,
+  seconds = 0,
   score = 0;
 
 /* functions */
@@ -159,7 +161,9 @@ class Player extends Block {
 
     for (let i = 0; i < enemies.length; i++) {
       if (px == enemies[i].x && py == enemies[i].y) { // game over
+        gameOn = false;
         gameOver(score);
+        clearCase(px, py);
         // clearInterval(loopEnemyMove);
       }
     }
@@ -235,7 +239,7 @@ class Bomb extends Block {
     }
     if (player.maxBombs > 1) {
       player.maxBombs--;
-      document.getElementById("fire").innerHTML = this.maxBombs;
+      document.getElementById("bombUp").innerHTML = this.maxBombs;
     }
   }
 }
@@ -276,9 +280,9 @@ class ExplodeEnemies extends Block {
   constructor(x, y) {
     super(x, y);
     if (this.x == player.x && this.y == player.y) {
+      gameOn = false;
       gameOver(score);
       clearCase(player.x, player.y);
-      // clearInterval(loopEnemyMove);
     }
     for (let i = 0; i < enemies.length; i++) {
       if (this.x == enemies[i].x && this.y == enemies[i].y) {
@@ -287,7 +291,7 @@ class ExplodeEnemies extends Block {
         score++;
         document.getElementById("score").innerHTML = score;
         if (enemies.length == 0) {
-          alert("YOU WIN!");
+          youWin(score);
         }
       }
     }
@@ -315,6 +319,21 @@ class YouWin extends Block {
     document.body.appendChild(this.element);
   }
 }
+
+// game timer
+timeCount = function() {
+  if (gameOn) {
+    seconds++;
+    if (seconds < 10) {
+      document.getElementById("time").innerHTML = "00:0" + seconds;
+    } else {
+      document.getElementById("time").innerHTML = "00:" + seconds;
+    }
+  } else {
+    clearInterval(loopTimeCount);
+  }
+}
+let loopTimeCount = setInterval(timeCount, 1000);
 
 // generate walls
 for (let wx = 0; wx < SIZE; wx++) {
@@ -478,7 +497,9 @@ enemyRandomMove = function() {
 
       if (ex == player.x && ey == player.y) { // game over
         stop = true;
+        gameOn = false;
         gameOver(score);
+        clearCase(player.x, player.y);
       }
 
       clearCase(enemies[i].x, enemies[i].y);
@@ -492,5 +513,4 @@ enemyRandomMove = function() {
     let loopEnemyMove = setTimeout(enemyRandomMove, 1000);
   }
 }
-// call function
 enemyRandomMove();

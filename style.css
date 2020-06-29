@@ -30,7 +30,7 @@ canvas {
   width: 100%;
   height: 100%;
   margin: 50px 0;
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(0,0,0,0.8);
   color: red;
   text-align: center;
   position: fixed;
@@ -42,24 +42,29 @@ canvas {
   width: 20px;
   height: 20px;
   background: yellow;
+  display: inline-block;
 }
 .enemies {
   width: 20px;
   height: 20px;
   background: red;
+  display: inline-block;
 }
 .bomb {
   width: 20px;
   height: 20px;
   background: pink;
+  display: inline-block;
 }
 .bomb-up {
   width: 20px;
   height: 20px;
   background: lightblue;
+  display: inline-block;
 }
 .fire {
   width: 20px;
   height: 20px;
   background: blue;
+  display: inline-block;
 }

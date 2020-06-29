@@ -1,0 +1,95 @@
+// out: style.css, sourcemap: true, compress: true;
+// main: style.less;
+
+// @font-size: calc(1em + 0.5vw);
+@player-color: yellow;
+@enemies-color: red;
+@walls-color: darkgrey;
+@bomb-color: pink;
+@bomb-up-color: lightblue;
+@fire-color: blue;
+
+.square(@color) {
+  width: 20px;
+  height: 20px;
+  background: @color;
+  display: inline-block;
+}
+
+.game-modal(@color) {
+  width: 100%;
+  height: 100%;
+  margin: 50px 0;
+  background-color: rgba(0,0,0,0.8);
+  color: @color;
+  text-align: center;
+  position: fixed;
+  z-index: 1;
+  overflow-y: scroll;
+}
+
+// @sizes: {
+//   XS: 320px;
+//   SM: 768px;
+//   MD: 992px;
+//   XL: 1200px;
+// }
+
+html {
+  height: 100%;
+}
+body {
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  font-family: helvetica, sans-serif;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.instructions-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+
+  // @media (max-width: @sizes[XL]) {
+  //   flex-direction: row;
+  // }
+}
+.canvas-container {
+  width: 760px;
+  height: auto;
+  margin: auto;
+  border: 1rem solid grey;
+  display: flex;
+}
+canvas {
+  width: 100%;
+  height: auto;
+}
+.game-won {
+  .game-modal(@player-color);
+}
+.game-over {
+  .game-modal(@enemies-color);
+}
+
+.player {
+  .square(@player-color);
+}
+.enemies {
+  .square(@enemies-color);
+}
+.walls {
+  .square(@walls-color);
+}
+.bomb {
+  .square(@bomb-color);
+}
+.bomb-up {
+  .square(@bomb-up-color);
+}
+.fire {
+  .square(@fire-color);
+}

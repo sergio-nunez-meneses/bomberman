@@ -15,9 +15,16 @@ let walls = [],
   bombs = [],
   powerUps = [],
   score = 0;
-  console.log("score: ", score);
 
 /* functions */
+minMaxRandom = function(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+randomHundred = function() {
+  return Math.floor(Math.random() * 100);
+}
+
 clearCase = function(x, y) {
   for (var i = 0; i < bombs.length; i++) {
     if (x == bombs[i].x && y == bombs[i].y) {
@@ -35,12 +42,16 @@ clearCase = function(x, y) {
   CTX.fillRect(x * BLOCKSIZE, y * BLOCKSIZE, BLOCKSIZE, BLOCKSIZE);
 }
 
-minMaxRandom = function(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+youWin = function() {
+  setTimeout(function(){
+    new YouWin(score);
+  }, 30);
 }
 
-randomHundred = function() {
-  return Math.floor(Math.random() * 100);
+gameOver = function() {
+  setTimeout(function(){
+    new GameOver(score);
+  }, 30);
 }
 
 /* classes */
@@ -133,19 +144,23 @@ class Player extends Block {
 
     for (var i = 0; i < powerUps.length; i++) {
       if (px == powerUps[i].x && py == powerUps[i].y) {
-        if (powerUps[i].powLevel >= 1) this.power++;
-        else this.maxBombs++;
+        if (powerUps[i].powLevel >= 1) {
+          this.power++;
+          document.getElementById("fire").innerHTML = this.power;
+        }
+        else {
+          this.maxBombs++;
+          document.getElementById("bombUp").innerHTML = this.maxBombs;
+        }
         clearCase(powerUps[i].x, powerUps[i].y);
         powerUps.splice(powerUps.indexOf(powerUps[i]), 1);
       }
     }
-    console.log("power up: ", this.power);
-    console.log("bomb up: ", this.maxBombs);
 
     for (let i = 0; i < enemies.length; i++) {
       if (px == enemies[i].x && py == enemies[i].y) { // game over
-        alert("game over!");
-        clearInterval(loopEnemyMove);
+        gameOver(score);
+        // clearInterval(loopEnemyMove);
       }
     }
 
@@ -214,8 +229,14 @@ class Bomb extends Block {
     new ExplodeWalls(bx, by);
 
     // decrease power up and the maximum number of bombs
-    if (player.power > 1) player.power--;
-    if (player.maxBombs > 1) player.maxBombs--;
+    if (player.power > 1) {
+      player.power--;
+      document.getElementById("fire").innerHTML = this.power;
+    }
+    if (player.maxBombs > 1) {
+      player.maxBombs--;
+      document.getElementById("fire").innerHTML = this.maxBombs;
+    }
   }
 }
 
@@ -255,20 +276,43 @@ class ExplodeEnemies extends Block {
   constructor(x, y) {
     super(x, y);
     if (this.x == player.x && this.y == player.y) {
-      alert("game over!");
-      clearInterval(loopEnemyMove);
+      gameOver(score);
+      clearCase(player.x, player.y);
+      // clearInterval(loopEnemyMove);
     }
     for (let i = 0; i < enemies.length; i++) {
       if (this.x == enemies[i].x && this.y == enemies[i].y) {
         clearCase(enemies[i].x, enemies[i].y);
         enemies.splice(enemies.indexOf(enemies[i]), 1);
         score++;
-        console.log("score: ", score);
+        document.getElementById("score").innerHTML = score;
         if (enemies.length == 0) {
           alert("YOU WIN!");
         }
       }
     }
+  }
+}
+
+class GameOver extends Block {
+  constructor(score) {
+    super(0, 0);
+    this.score = score;
+    this.element = document.createElement("div");
+    this.element.setAttribute("class", "game-over");
+    this.element.innerHTML = "<h1>Game Over</h1><button type=\"button\" onclick=\"document.location.reload(true);\">Wanna try again ?</button><p>Score: " + this.score + "</p>";
+    document.body.appendChild(this.element);
+  }
+}
+
+class YouWin extends Block {
+  constructor(score) {
+    super(0, 0);
+    this.score = score;
+    this.element = document.createElement("div");
+    this.element.setAttribute("class", "game-over");
+    this.element.innerHTML = "<h1>YOU WIN !</h1><button type=\"button\" onclick=\"document.location.reload(true);\">Wanna try again ?</button><p>Score: " + this.score + "</p>";
+    document.body.appendChild(this.element);
   }
 }
 
@@ -348,7 +392,6 @@ while (count < 5) {
   enemies.push(new Enemy(rex, rey));
   count++;
 }
-console.log("enemies: ", enemies.length);
 
 // move enemies randomly
 enemyRandomMove = function() {
@@ -435,7 +478,7 @@ enemyRandomMove = function() {
 
       if (ex == player.x && ey == player.y) { // game over
         stop = true;
-        alert("game over!");
+        gameOver(score);
       }
 
       clearCase(enemies[i].x, enemies[i].y);

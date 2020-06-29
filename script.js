@@ -16,6 +16,7 @@ let walls = [],
   powerUps = [],
   gameOn = true,
   seconds = 0,
+  minutes = 0,
   score = 0;
 
 /* functions */
@@ -45,15 +46,17 @@ clearCase = function(x, y) {
 }
 
 youWin = function() {
-  setTimeout(function(){
+  setTimeout(function() {
     new YouWin(score);
-  }, 30);
+  }, 50);
 }
 
 gameOver = function() {
-  setTimeout(function(){
-    new GameOver(score);
-  }, 30);
+  if (!gameOn) {
+    setTimeout(function() {
+      new GameOver(score);
+    }, 50);
+  }
 }
 
 /* classes */
@@ -160,11 +163,10 @@ class Player extends Block {
     }
 
     for (let i = 0; i < enemies.length; i++) {
-      if (px == enemies[i].x && py == enemies[i].y) { // game over
+      if (px == enemies[i].x && py == enemies[i].y) {
         gameOn = false;
         gameOver(score);
         clearCase(px, py);
-        // clearInterval(loopEnemyMove);
       }
     }
 
@@ -235,11 +237,11 @@ class Bomb extends Block {
     // decrease power up and the maximum number of bombs
     if (player.power > 1) {
       player.power--;
-      document.getElementById("fire").innerHTML = this.power;
+      document.getElementById("fire").innerHTML = player.power;
     }
     if (player.maxBombs > 1) {
       player.maxBombs--;
-      document.getElementById("bombUp").innerHTML = this.maxBombs;
+      document.getElementById("bombUp").innerHTML = player.maxBombs;
     }
   }
 }
@@ -302,9 +304,10 @@ class GameOver extends Block {
   constructor(score) {
     super(0, 0);
     this.score = score;
+    this.time;
     this.element = document.createElement("div");
     this.element.setAttribute("class", "game-over");
-    this.element.innerHTML = "<h1>Game Over</h1><button type=\"button\" onclick=\"document.location.reload(true);\">Wanna try again ?</button><p>Score: " + this.score + "</p>";
+    this.element.innerHTML = "<h1>Game Over</h1><button type=\"button\" onclick=\"document.location.reload(true);\">Wanna try again ?</button><p>Score: " + this.score + "</p><p>time: " + this.time + "</p>";
     document.body.appendChild(this.element);
   }
 }
@@ -313,9 +316,10 @@ class YouWin extends Block {
   constructor(score) {
     super(0, 0);
     this.score = score;
+    this.time;
     this.element = document.createElement("div");
-    this.element.setAttribute("class", "game-over");
-    this.element.innerHTML = "<h1>YOU WIN !</h1><button type=\"button\" onclick=\"document.location.reload(true);\">Wanna try again ?</button><p>Score: " + this.score + "</p>";
+    this.element.setAttribute("class", "game-won");
+    this.element.innerHTML = "<h1>YOU WIN !</h1><button type=\"button\" onclick=\"document.location.reload(true);\">Wanna try again ?</button><p>score: " + this.score + "</p><p>time: " + this.time + "</p>";
     document.body.appendChild(this.element);
   }
 }
@@ -325,9 +329,9 @@ timeCount = function() {
   if (gameOn) {
     seconds++;
     if (seconds < 10) {
-      document.getElementById("time").innerHTML = "00:0" + seconds;
+      document.getElementById("time").innerHTML = "0" + minutes + ":0" + seconds;
     } else {
-      document.getElementById("time").innerHTML = "00:" + seconds;
+      document.getElementById("time").innerHTML = "0" + minutes + ":" + seconds;
     }
   } else {
     clearInterval(loopTimeCount);
@@ -495,7 +499,7 @@ enemyRandomMove = function() {
         continue;
       }
 
-      if (ex == player.x && ey == player.y) { // game over
+      if (ex == player.x && ey == player.y) {
         stop = true;
         gameOn = false;
         gameOver(score);

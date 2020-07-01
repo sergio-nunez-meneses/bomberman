@@ -20,14 +20,6 @@ let walls = [],
   // minutes = 0;
 
 /* functions */
-minMaxRandom = function(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-randomHundred = function() {
-  return Math.floor(Math.random() * 100);
-}
-
 clearCase = function(x, y) {
   for (var i = 0; i < bombs.length; i++) {
     if (x == bombs[i].x && y == bombs[i].y) {
@@ -43,6 +35,14 @@ clearCase = function(x, y) {
   }
   CTX.fillStyle = BACKGROUND_COLOR;
   CTX.fillRect(x * BLOCKSIZE, y * BLOCKSIZE, BLOCKSIZE, BLOCKSIZE);
+}
+
+minMaxRandom = function(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+randomHundred = function() {
+  return Math.floor(Math.random() * 100);
 }
 
 scoreHandler = function(points) {

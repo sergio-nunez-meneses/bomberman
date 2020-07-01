@@ -1,7 +1,7 @@
 // out: style.css, sourcemap: true, compress: true;
 // main: style.less;
 
-// @font-size: calc(1em + 0.5vw);
+// @font-size: calc(1rem + 0.5vw);
 @player-color: yellow;
 @enemies-color: red;
 @walls-color: darkgrey;
@@ -29,9 +29,9 @@
 }
 
 // @sizes: {
-//   XS: 320px;
-//   SM: 768px;
-//   MD: 992px;
+//   SM: 576px;
+//   MD: 768px;
+//   LG: 992px;
 //   XL: 1200px;
 // }
 
@@ -44,18 +44,30 @@ body {
   margin: 0;
   font-family: helvetica, sans-serif;
   font-size: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
-.instructions-container {
+canvas {
+  width: 100%;
+  height: auto;
+}
+
+.title {
+  text-align: center;
+}
+.logout {
+  float: right;
+}
+.game-container {
+  width: 100%;
+  height: auto;
   display: flex;
-  flex-direction: column;
-  margin-left: auto;
+  align-items: center;
 
   // @media (max-width: @sizes[XL]) {
   //   flex-direction: row;
   // }
+}
+.information-container {
+  margin: 0 auto;
 }
 .canvas-container {
   width: 760px;
@@ -64,10 +76,7 @@ body {
   border: 1rem solid grey;
   display: flex;
 }
-canvas {
-  width: 100%;
-  height: auto;
-}
+
 .game-won {
   .game-modal(@player-color);
 }

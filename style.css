@@ -7,14 +7,25 @@ body {
   margin: 0;
   font-family: helvetica, sans-serif;
   font-size: 1rem;
+}
+canvas {
+  width: 100%;
+  height: auto;
+}
+.title {
+  text-align: center;
+}
+.logout {
+  float: right;
+}
+.game-container {
+  width: 100%;
+  height: auto;
   display: flex;
-  justify-content: center;
   align-items: center;
 }
-.instructions-container {
-  display: flex;
-  flex-direction: column;
-  margin-left: auto;
+.information-container {
+  margin: 0 auto;
 }
 .canvas-container {
   width: 760px;
@@ -22,10 +33,6 @@ body {
   margin: auto;
   border: 1rem solid grey;
   display: flex;
-}
-canvas {
-  width: 100%;
-  height: auto;
 }
 .game-won {
   width: 100%;

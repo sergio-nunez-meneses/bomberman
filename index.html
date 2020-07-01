@@ -1,43 +1,67 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="style.css">
-    <title>bomberman&#94;2</title>
-  </head>
-  <body>
 
-    <div class="instructions-container">
-      <h1>bomberMath.pow(this, 2);</h1>
-      <ul>
-        <li>time: <span id="time">00:00</span></li>
-        <li>score: <span id="score">0</span></li>
-        <li>bomb-up: <span id="bombUp">1</span></li>
-        <li>fire: <span id="fire">1</span></li>
-      </ul>
-      <h1>instructions</h1>
-      <ul>
-        <li>arrow right = &#8594;</li>
-        <li>arrow down = &#8595;</li>
-        <li>arrow left = &#8592;</li>
-        <li>arrow up = &#8593;</li>
-        <li>spacebar = drop da bomb!</li>
-      </ul>
-      <h1>symbols</h1>
-      <ul>
-        <li><div class="player"></div> = player</li>
-        <li><div class="enemies"></div> = enemies</li>
-        <li><div class="walls"></div> = destructible walls</li>
-        <li><div class="bomb"></div> = bomb</li>
-        <li><div class="bomb-up"></div> = bomb-up</li>
-        <li><div class="fire"></div> = fire</li>
-      </ul>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css">
+  <title>bomberman&#94;2</title>
+</head>
+
+<body>
+
+  <h1 class="title">bomberMath.pow(this, 2);</h1>
+
+  <div class="game-container">
+    <div class="information-container">
+      <div class="player-container">
+        <h1>game information</h1>
+        <ul>
+          <!-- <li>time: <span id="time">00:00</span></li> -->
+          <li>score: <span id="score">0</span></li>
+          <li>bomb-up: <span id="bombUp">1</span></li>
+          <li>fire: <span id="fire">1</span></li>
+        </ul>
+      </div>
+      <div class="instructions-container">
+        <h1>instructions</h1>
+        <ul>
+          <li>arrow right = &#8594;</li>
+          <li>arrow down = &#8595;</li>
+          <li>arrow left = &#8592;</li>
+          <li>arrow up = &#8593;</li>
+          <li>spacebar = drop da bomb!</li>
+        </ul>
+      </div>
+      <div class="symbols-container">
+        <h1>symbols</h1>
+        <ul>
+          <li>
+            <div class="player"></div> = player
+          </li>
+          <li>
+            <div class="enemies"></div> = enemies
+          </li>
+          <li>
+            <div class="walls"></div> = destructible walls
+          </li>
+          <li>
+            <div class="bomb"></div> = bomb
+          </li>
+          <li>
+            <div class="bomb-up"></div> = bomb-up
+          </li>
+          <li>
+            <div class="fire"></div> = fire
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="canvas-container">
       <canvas id="canvas"></canvas>
     </div>
+  </div>
 
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 
-  </body>
+</body>
 </html>

@@ -1,3 +1,5 @@
+// put a gif for explosion radius
+
 /* variables */
 const SIZE = 18, // number of blocks per row and column
   BLOCKSIZE = 40,
@@ -15,9 +17,9 @@ let walls = [],
   bombs = [],
   powerUps = [],
   gameOn = true,
-  seconds = 0,
-  minutes = 0,
   score = 0;
+  // seconds = 0,
+  // minutes = 0;
 
 /* functions */
 minMaxRandom = function(min, max) {
@@ -307,7 +309,7 @@ class GameOver extends Block {
     this.time;
     this.element = document.createElement("div");
     this.element.setAttribute("class", "game-over");
-    this.element.innerHTML = "<h1>Game Over</h1><button type=\"button\" onclick=\"document.location.reload(true);\">Wanna try again ?</button><p>Score: " + this.score + "</p><p>time: " + this.time + "</p>";
+    this.element.innerHTML = "<h1>game over!</h1><form method=\"post\" action=\"save_score.php\"><input type=\"hidden\" name=\"score\" value=\"" + this.score + "\"><input type=\"text\" name=\"nickname\" value=\"\"><button type=\"submit\" name=\"save\">save and quit</button></form><button type=\"button\" onclick=\"document.location.reload(true);\">Wanna try again ?</button><p>score: " + this.score + "</p><p>time: " + this.time + "</p>";
     document.body.appendChild(this.element);
   }
 }
@@ -319,25 +321,25 @@ class YouWin extends Block {
     this.time;
     this.element = document.createElement("div");
     this.element.setAttribute("class", "game-won");
-    this.element.innerHTML = "<h1>YOU WIN !</h1><button type=\"button\" onclick=\"document.location.reload(true);\">Wanna try again ?</button><p>score: " + this.score + "</p><p>time: " + this.time + "</p>";
+    this.element.innerHTML = "<h1>you win!</h1><form method=\"post\" action=\"save_score.php\"><input type=\"hidden\" name=\"score\" value=\"" + this.score + "\"><input type=\"text\" name=\"nickname\" value=\"\"><button type=\"submit\" name=\"save\">save and quit</button></form><button type=\"button\" onclick=\"document.location.reload(true);\">Wanna try again ?</button><p>score: " + this.score + "</p><p>time: " + this.time + "</p>";
     document.body.appendChild(this.element);
   }
 }
 
 // game timer
-timeCount = function() {
-  if (gameOn) {
-    seconds++;
-    if (seconds < 10) {
-      document.getElementById("time").innerHTML = "0" + minutes + ":0" + seconds;
-    } else {
-      document.getElementById("time").innerHTML = "0" + minutes + ":" + seconds;
-    }
-  } else {
-    clearInterval(loopTimeCount);
-  }
-}
-let loopTimeCount = setInterval(timeCount, 1000);
+// timeCount = function() {
+//   if (gameOn) {
+//     seconds++;
+//     if (seconds < 10) {
+//       document.getElementById("time").innerHTML = "0" + minutes + ":0" + seconds;
+//     } else {
+//       document.getElementById("time").innerHTML = "0" + minutes + ":" + seconds;
+//     }
+//   } else {
+//     clearInterval(loopTimeCount);
+//   }
+// }
+// let loopTimeCount = setInterval(timeCount, 1000);
 
 // generate walls
 for (let wx = 0; wx < SIZE; wx++) {

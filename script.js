@@ -47,6 +47,11 @@ clearCase = function(x, y) {
   CTX.fillRect(x * BLOCKSIZE, y * BLOCKSIZE, BLOCKSIZE, BLOCKSIZE);
 }
 
+scoreHandler = function(points) {
+  score += points;
+  document.getElementById("score").innerHTML = score;
+}
+
 youWin = function() {
   setTimeout(function() {
     new YouWin(score);
@@ -154,10 +159,12 @@ class Player extends Block {
         if (powerUps[i].powLevel >= 1) {
           this.power++;
           document.getElementById("fire").innerHTML = this.power;
+          scoreHandler(10);
         }
         else {
           this.maxBombs++;
           document.getElementById("bombUp").innerHTML = this.maxBombs;
+          scoreHandler(10);
         }
         clearCase(powerUps[i].x, powerUps[i].y);
         powerUps.splice(powerUps.indexOf(powerUps[i]), 1);
@@ -240,10 +247,12 @@ class Bomb extends Block {
     if (player.power > 1) {
       player.power--;
       document.getElementById("fire").innerHTML = player.power;
+      scoreHandler(25);
     }
     if (player.maxBombs > 1) {
       player.maxBombs--;
       document.getElementById("bombUp").innerHTML = player.maxBombs;
+      scoreHandler(15);
     }
   }
 }
@@ -275,6 +284,7 @@ class ExplodeWalls extends Block {
         else if (randGen <= 10) powerUps.push(new BombUp(walls[i].x, walls[i].y));
         clearCase(walls[i].x, walls[i].y);
         walls.splice(walls.indexOf(walls[i]), 1);
+        scoreHandler(2);
       }
     }
   }
@@ -285,6 +295,7 @@ class ExplodeEnemies extends Block {
     super(x, y);
     if (this.x == player.x && this.y == player.y) {
       gameOn = false;
+      scoreHandler(-5);
       gameOver(score);
       clearCase(player.x, player.y);
     }
@@ -292,8 +303,9 @@ class ExplodeEnemies extends Block {
       if (this.x == enemies[i].x && this.y == enemies[i].y) {
         clearCase(enemies[i].x, enemies[i].y);
         enemies.splice(enemies.indexOf(enemies[i]), 1);
-        score++;
-        document.getElementById("score").innerHTML = score;
+        scoreHandler(10);
+        // score++;
+        // document.getElementById("score").innerHTML = score;
         if (enemies.length == 0) {
           youWin(score);
         }

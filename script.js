@@ -1,12 +1,17 @@
 /* variables */
-const SIZE = 18, // number of blocks per row and column
-  BLOCKSIZE = 40,
+const GRID_SIZE = 18, // number of blocks per row and column
+  BLOCK_SIZE = 40,
   CANVAS = document.getElementById("canvas"),
   CTX = CANVAS.getContext('2d'),
-  BACKGROUND_COLOR = "#00af00";
+  BACKGROUND_COLOR = "#00af00",
+  CYCLE_LOOP = [0, 1, 0, 2],
+  FACING_DOWN = 0,
+  FACING_UP = 3,
+  FACING_LEFT = 2,
+  FACING_RIGHT = 1;
 
-CANVAS.width = BLOCKSIZE * (SIZE + 1);
-CANVAS.height = BLOCKSIZE * (SIZE + 1);
+CANVAS.width = BLOCK_SIZE * (GRID_SIZE + 1);
+CANVAS.height = BLOCK_SIZE * (GRID_SIZE + 1);
 CTX.fillStyle = BACKGROUND_COLOR;
 CTX.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
@@ -15,9 +20,15 @@ let walls = [],
   bombs = [],
   powerUps = [],
   gameOn = true,
-  score = 0;
+  score = 0,
   // seconds = 0,
   // minutes = 0;
+  animationTime = 60,
+  loopIndex = 0,
+  x = 0,
+  y = 0,
+  currentDirection = FACING_DOWN,
+  playerSprite = new Image();
 
 /* functions */
 clearCase = function(x, y) {
@@ -34,7 +45,7 @@ clearCase = function(x, y) {
     }
   }
   CTX.fillStyle = BACKGROUND_COLOR;
-  CTX.fillRect(x * BLOCKSIZE, y * BLOCKSIZE, BLOCKSIZE, BLOCKSIZE);
+  CTX.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 }
 
 minMaxRandom = function(min, max) {
@@ -64,6 +75,19 @@ gameOver = function() {
   }
 }
 
+drawFrame = function(img, frameX, frameY, canvasX, canvasY) {
+  CTX.drawImage(img, frameX * BLOCK_SIZE, frameY * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, canvasX, canvasY, BLOCK_SIZE, BLOCK_SIZE);
+}
+
+// images
+megaman = function() {
+  playerSprite.onload = setInterval(function() {
+    player.drawPlayer();
+  }, animationTime);
+  playerSprite.src = "img/megaman.png";
+  return playerSprite;
+}
+
 /* classes */
 class Block {
   constructor(x, y) {
@@ -73,7 +97,7 @@ class Block {
   }
   drawBlock = function() {
     CTX.fillStyle = this.color;
-    CTX.fillRect(this.x * BLOCKSIZE, this.y * BLOCKSIZE, BLOCKSIZE, BLOCKSIZE);
+    CTX.fillRect(this.x * BLOCK_SIZE, this.y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
   }
 }
 
@@ -92,8 +116,9 @@ class Wall extends Block {
 class Player extends Block {
   constructor(x, y) {
     super(x, y);
-    this.color = "#ffd700";
-    this.drawBlock();
+    this.image = megaman();
+    // this.color = "#ffd700";
+    // this.drawBlock();
     let that = this;
     document.onkeydown = function(event) {
       that.keyPressed(event);
@@ -101,6 +126,10 @@ class Player extends Block {
     this.power = 1;
     this.maxBombs = 1;
     this.activeBombs = 0;
+  }
+  drawPlayer = function() {
+    CTX.fillStyle = this.color;
+    drawFrame(this.image, CYCLE_LOOP[loopIndex], currentDirection, this.x * BLOCK_SIZE, this.y * BLOCK_SIZE);
   }
   dropDaBomb = function() {
     if (this.maxBombs <= this.activeBombs) return;
@@ -112,24 +141,33 @@ class Player extends Block {
 
     let keycode = event.keyCode,
       px = this.x,
-      py = this.y;
+      py = this.y,
+      hasMoved = false;
 
     switch (keycode) {
 
       case 37: // left
         px--;
+        currentDirection = FACING_LEFT;
+        hasMoved = true;
         break;
 
       case 38: // up
         py--;
+        currentDirection = FACING_UP;
+        hasMoved = true;
         break;
 
       case 39: // right
         px++;
+        currentDirection = FACING_RIGHT;
+        hasMoved = true;
         break;
 
       case 40: // bottom
         py++;
+        currentDirection = FACING_DOWN;
+        hasMoved = true;
         break;
 
       case 32: // spacebar
@@ -138,11 +176,22 @@ class Player extends Block {
       default:
         return;
     }
+
+    if (!hasMoved) {
+      currentLoopIndex = 0;
+      currentDirection = FACING_DOWN;
+    }
+
+    if (hasMoved) {
+      loopIndex++;
+      if (loopIndex >= CYCLE_LOOP.length) loopIndex = 0;
+    }
+
     // check border collision
     if (px < 0) return;
     if (py < 0) return;
-    if (px >= SIZE + 1) return;
-    if (py >= SIZE + 1) return;
+    if (px >= GRID_SIZE + 1) return;
+    if (py >= GRID_SIZE + 1) return;
 
     for (let i = 0; i < walls.length; i++) {
       if (px == walls[i].x && py == walls[i].y) return;
@@ -180,7 +229,8 @@ class Player extends Block {
     clearCase(this.x, this.y);
     this.x = px;
     this.y = py;
-    this.drawBlock();
+    // this.drawBlock();
+    this.drawPlayer();
   }
 }
 let player = new Player(0, 0);
@@ -235,8 +285,8 @@ class Bomb extends Block {
     // check if bomb explodes outside the board game
     if (bx < 0) return true;
     if (by < 0) return true;
-    if (bx > SIZE) return true;
-    if (by > SIZE) return true;
+    if (bx > GRID_SIZE) return true;
+    if (by > GRID_SIZE) return true;
 
     new ExplodeEnemies(bx, by);
     new ExplodeWalls(bx, by);
@@ -335,8 +385,8 @@ class YouWin extends Block {
 }
 
 // generate walls
-for (let wx = 0; wx < SIZE; wx++) {
-  for (let wy = 0; wy < SIZE; wy++) {
+for (let wx = 0; wx < GRID_SIZE; wx++) {
+  for (let wy = 0; wy < GRID_SIZE; wy++) {
     if (wx % 2 == 1 && wy % 2 == 1) {
       walls.push(new Wall(wx, wy, false));
     }
@@ -346,8 +396,8 @@ for (let wx = 0; wx < SIZE; wx++) {
 let count = 0;
 while (count < 100) {
 
-  let rwx = minMaxRandom(0, SIZE),
-    rwy = minMaxRandom(0, SIZE),
+  let rwx = minMaxRandom(0, GRID_SIZE),
+    rwy = minMaxRandom(0, GRID_SIZE),
     found = false;
 
   for (let i = 0; i < walls.length; i++) {
@@ -364,15 +414,15 @@ while (count < 100) {
   if (rwx == 0 && rwy == 0) continue;
   else if (rwx == 1 && rwy == 0) continue;
   else if (rwx == 0 && rwy == 1) continue;
-  else if (rwx == SIZE && rwy == 0) continue;
-  else if (rwx == (SIZE - 1) && rwy == 0) continue;
-  else if (rwx == SIZE && rwy == 1) continue;
-  else if (rwx == 0 && rwy == SIZE) continue;
-  else if (rwx == 1 && rwy == SIZE) continue;
-  else if (rwx == 0 && rwy == (SIZE - 1)) continue;
-  else if (rwx == SIZE && rwy == SIZE) continue;
-  else if (rwx == (SIZE - 1) && rwy == SIZE) continue;
-  else if (rwx == SIZE && rwy == (SIZE - 1)) continue;
+  else if (rwx == GRID_SIZE && rwy == 0) continue;
+  else if (rwx == (GRID_SIZE - 1) && rwy == 0) continue;
+  else if (rwx == GRID_SIZE && rwy == 1) continue;
+  else if (rwx == 0 && rwy == GRID_SIZE) continue;
+  else if (rwx == 1 && rwy == GRID_SIZE) continue;
+  else if (rwx == 0 && rwy == (GRID_SIZE - 1)) continue;
+  else if (rwx == GRID_SIZE && rwy == GRID_SIZE) continue;
+  else if (rwx == (GRID_SIZE - 1) && rwy == GRID_SIZE) continue;
+  else if (rwx == GRID_SIZE && rwy == (GRID_SIZE - 1)) continue;
   walls.push(new Wall(rwx, rwy, true));
   count++;
 }
@@ -381,8 +431,8 @@ while (count < 100) {
 count = 0;
 while (count < 5) {
 
-  let rex = minMaxRandom(5, SIZE),
-    rey = minMaxRandom(5, SIZE),
+  let rex = minMaxRandom(5, GRID_SIZE),
+    rey = minMaxRandom(5, GRID_SIZE),
     found = false;
 
   for (let i = 0; i < walls.length; i++) {
@@ -450,8 +500,8 @@ enemyRandomMove = function() {
       // check border collision
       if (ex < 0) continue;
       if (ey < 0) continue;
-      if (ex >= SIZE + 1) continue;
-      if (ey >= SIZE + 1) continue;
+      if (ex >= GRID_SIZE + 1) continue;
+      if (ey >= GRID_SIZE + 1) continue;
 
       found = false;
       for (let i = 0; i < walls.length; i++) {

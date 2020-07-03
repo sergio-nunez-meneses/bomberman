@@ -4,11 +4,12 @@ const GRID_SIZE = 18, // number of blocks per row and column
   CANVAS = document.getElementById("canvas"),
   CTX = CANVAS.getContext('2d'),
   BACKGROUND_COLOR = "#00af00",
+  ENEMIES_SPRITES = [],
   CYCLE_LOOP = [0, 1, 0, 2],
   FACING_DOWN = 0,
-  FACING_UP = 3,
+  FACING_RIGHT = 1,
   FACING_LEFT = 2,
-  FACING_RIGHT = 1;
+  FACING_UP = 3;
 
 CANVAS.width = BLOCK_SIZE * (GRID_SIZE + 1);
 CANVAS.height = BLOCK_SIZE * (GRID_SIZE + 1);
@@ -24,11 +25,7 @@ let walls = [],
   // seconds = 0,
   // minutes = 0;
   animationTime = 60,
-  loopIndex = 0,
-  x = 0,
-  y = 0,
-  currentDirection = FACING_DOWN,
-  playerSprite = new Image();
+  loopIndex = 0;
 
 /* functions */
 clearCase = function(x, y) {
@@ -75,17 +72,8 @@ gameOver = function() {
   }
 }
 
-drawFrame = function(img, frameX, frameY, canvasX, canvasY) {
-  CTX.drawImage(img, frameX * BLOCK_SIZE, frameY * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, canvasX, canvasY, BLOCK_SIZE, BLOCK_SIZE);
-}
-
-// images
-megaman = function() {
-  playerSprite.onload = setInterval(function() {
-    player.drawPlayer();
-  }, animationTime);
-  playerSprite.src = "img/megaman.png";
-  return playerSprite;
+drawFrame = function(image, frameX, frameY, canvasX, canvasY) {
+  CTX.drawImage(image, frameX * BLOCK_SIZE, frameY * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, canvasX, canvasY, BLOCK_SIZE, BLOCK_SIZE);
 }
 
 /* classes */
@@ -94,6 +82,19 @@ class Block {
     this.x = x;
     this.y = y;
     this.color;
+  }
+  sprite = function(path) {
+    let sprite = new Image(),
+      that = this;
+    sprite.onload = setInterval(function() {
+      that.draw();
+    }, animationTime);
+    sprite.src = path;
+    return sprite;
+  }
+  draw = function() {
+    // CTX.fillStyle = this.color;
+    drawFrame(this.image, CYCLE_LOOP[loopIndex], this.direction, this.x * BLOCK_SIZE, this.y * BLOCK_SIZE);
   }
   drawBlock = function() {
     CTX.fillStyle = this.color;
@@ -116,9 +117,11 @@ class Wall extends Block {
 class Player extends Block {
   constructor(x, y) {
     super(x, y);
-    this.image = megaman();
     // this.color = "#ffd700";
     // this.drawBlock();
+    this.image = this.sprite("img/megaman.png");
+    this.direction = FACING_DOWN;
+    this.draw();
     let that = this;
     document.onkeydown = function(event) {
       that.keyPressed(event);
@@ -126,10 +129,6 @@ class Player extends Block {
     this.power = 1;
     this.maxBombs = 1;
     this.activeBombs = 0;
-  }
-  drawPlayer = function() {
-    CTX.fillStyle = this.color;
-    drawFrame(this.image, CYCLE_LOOP[loopIndex], currentDirection, this.x * BLOCK_SIZE, this.y * BLOCK_SIZE);
   }
   dropDaBomb = function() {
     if (this.maxBombs <= this.activeBombs) return;
@@ -148,25 +147,25 @@ class Player extends Block {
 
       case 37: // left
         px--;
-        currentDirection = FACING_LEFT;
+        this.direction = FACING_LEFT;
         hasMoved = true;
         break;
 
       case 38: // up
         py--;
-        currentDirection = FACING_UP;
+        this.direction = FACING_UP;
         hasMoved = true;
         break;
 
       case 39: // right
         px++;
-        currentDirection = FACING_RIGHT;
+        this.direction = FACING_RIGHT;
         hasMoved = true;
         break;
 
       case 40: // bottom
         py++;
-        currentDirection = FACING_DOWN;
+        this.direction = FACING_DOWN;
         hasMoved = true;
         break;
 
@@ -178,8 +177,8 @@ class Player extends Block {
     }
 
     if (!hasMoved) {
-      currentLoopIndex = 0;
-      currentDirection = FACING_DOWN;
+      loopIndex = 0;
+      this.direction = FACING_DOWN;
     }
 
     if (hasMoved) {
@@ -230,7 +229,7 @@ class Player extends Block {
     this.x = px;
     this.y = py;
     // this.drawBlock();
-    this.drawPlayer();
+    this.draw();
   }
 }
 let player = new Player(0, 0);
@@ -238,8 +237,11 @@ let player = new Player(0, 0);
 class Enemy extends Block {
   constructor(x, y) {
     super(x, y);
-    this.color = "red";
-    this.drawBlock();
+    // this.color = "red";
+    // this.drawBlock();
+    this.image = this.sprite("img/enemy_01.png");
+    this.direction = FACING_DOWN;
+    this.draw();
   }
 }
 
@@ -474,29 +476,48 @@ enemyRandomMove = function() {
 
       fail++;
       let ex = enemies[i].x,
-        ey = enemies[i].y;
+        ey = enemies[i].y,
+        hasMoved = false;
 
       switch (minMaxRandom(0, 4)) {
 
         case 0: // left
           ex--;
+          enemies[i].direction = FACING_LEFT;
+          hasMoved = true;
           break;
 
         case 1: // up
           ey--;
+          enemies[i].direction = FACING_UP;
+          hasMoved = true;
           break;
 
         case 2: // right
           ex++;
+          enemies[i].direction = FACING_RIGHT;
+          hasMoved = true;
           break;
 
         case 3: // bottom
           ey++;
+          enemies[i].direction = FACING_DOWN;
+          hasMoved = true;
           break;
 
         default:
           continue;
       }
+
+      if (!hasMoved) {
+        loopIndex = 0;
+        enemies[i].direction = FACING_DOWN;
+        if (hasMoved) {
+          loopIndex++;
+          if (loopIndex >= CYCLE_LOOP.length) loopIndex = 0;
+        }
+      }
+
       // check border collision
       if (ex < 0) continue;
       if (ey < 0) continue;
@@ -554,7 +575,8 @@ enemyRandomMove = function() {
       clearCase(enemies[i].x, enemies[i].y);
       enemies[i].x = ex;
       enemies[i].y = ey;
-      enemies[i].drawBlock();
+      // enemies[i].drawBlock();
+      enemies[i].draw();
       break;
     }
   }
